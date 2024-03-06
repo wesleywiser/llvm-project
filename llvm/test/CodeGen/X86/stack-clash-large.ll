@@ -6,8 +6,8 @@
 define i32 @foo() local_unnamed_addr #0 {
 ; CHECK-X64-LABEL: foo:
 ; CHECK-X64:       # %bb.0:
-; CHECK-X64-NEXT:    movq %rsp, %r11
-; CHECK-X64-NEXT:    subq $69632, %r11 # imm = 0x11000
+; CHECK-X64-NEXT:    movq $-69632, %r11 # imm = 0xFFFEF000
+; CHECK-X64-NEXT:    addq %rsp, %r11
 ; CHECK-X64-NEXT:    .cfi_def_cfa_register %r11
 ; CHECK-X64-NEXT:    .cfi_adjust_cfa_offset 69632
 ; CHECK-X64-NEXT:  .LBB0_1: # =>This Inner Loop Header: Depth=1
@@ -28,8 +28,8 @@ define i32 @foo() local_unnamed_addr #0 {
 ;
 ; CHECK-X86-LABEL: foo:
 ; CHECK-X86:       # %bb.0:
-; CHECK-X86-NEXT:    movl %esp, %eax
-; CHECK-X86-NEXT:    subl $69632, %eax # imm = 0x11000
+; CHECK-X86-NEXT:    movl $-69632, %eax # imm = 0xFFFEF000
+; CHECK-X86-NEXT:    addl %esp, %eax
 ; CHECK-X86-NEXT:    .cfi_def_cfa_register %eax
 ; CHECK-X86-NEXT:    .cfi_adjust_cfa_offset 69632
 ; CHECK-X86-NEXT:  .LBB0_1: # =>This Inner Loop Header: Depth=1
@@ -50,8 +50,8 @@ define i32 @foo() local_unnamed_addr #0 {
 ;
 ; CHECK-X32-LABEL: foo:
 ; CHECK-X32:       # %bb.0:
-; CHECK-X32-NEXT:    movl %esp, %r11d
-; CHECK-X32-NEXT:    subl $69632, %r11d # imm = 0x11000
+; CHECK-X32-NEXT:    movl $-69632, %r11d # imm = 0xFFFEF000
+; CHECK-X32-NEXT:    addl %esp, %r11d
 ; CHECK-X32-NEXT:    .cfi_def_cfa_register %r11
 ; CHECK-X32-NEXT:    .cfi_adjust_cfa_offset 69632
 ; CHECK-X32-NEXT:  .LBB0_1: # =>This Inner Loop Header: Depth=1
@@ -83,8 +83,8 @@ define void @push_before_probe(i32 %a, i32 %b, i32 %c, i32 %d, i32 %e, i32 %f, i
 ; CHECK-X64:       # %bb.0:
 ; CHECK-X64-NEXT:    pushq %rax
 ; CHECK-X64-NEXT:    .cfi_def_cfa_offset 16
-; CHECK-X64-NEXT:    movq %rsp, %r11
-; CHECK-X64-NEXT:    subq $69632, %r11 # imm = 0x11000
+; CHECK-X64-NEXT:    movq $-69632, %r11 # imm = 0xFFFEF000
+; CHECK-X64-NEXT:    addq %rsp, %r11
 ; CHECK-X64-NEXT:    .cfi_def_cfa_register %r11
 ; CHECK-X64-NEXT:    .cfi_adjust_cfa_offset 69632
 ; CHECK-X64-NEXT:  .LBB1_1: # =>This Inner Loop Header: Depth=1
@@ -123,8 +123,8 @@ define void @push_before_probe(i32 %a, i32 %b, i32 %c, i32 %d, i32 %e, i32 %f, i
 ; CHECK-X86-NEXT:    .cfi_def_cfa_offset 16
 ; CHECK-X86-NEXT:    pushl %eax
 ; CHECK-X86-NEXT:    .cfi_def_cfa_offset 20
-; CHECK-X86-NEXT:    movl %esp, %eax
-; CHECK-X86-NEXT:    subl $69632, %eax # imm = 0x11000
+; CHECK-X86-NEXT:    movl $-69632, %eax # imm = 0xFFFEF000
+; CHECK-X86-NEXT:    addl %esp, %eax
 ; CHECK-X86-NEXT:    .cfi_def_cfa_register %eax
 ; CHECK-X86-NEXT:    .cfi_adjust_cfa_offset 69632
 ; CHECK-X86-NEXT:  .LBB1_1: # =>This Inner Loop Header: Depth=1
@@ -169,8 +169,8 @@ define void @push_before_probe(i32 %a, i32 %b, i32 %c, i32 %d, i32 %e, i32 %f, i
 ; CHECK-X32:       # %bb.0:
 ; CHECK-X32-NEXT:    pushq %rax
 ; CHECK-X32-NEXT:    .cfi_def_cfa_offset 16
-; CHECK-X32-NEXT:    movl %esp, %r11d
-; CHECK-X32-NEXT:    subl $69632, %r11d # imm = 0x11000
+; CHECK-X32-NEXT:    movl $-69632, %r11d # imm = 0xFFFEF000
+; CHECK-X32-NEXT:    addl %esp, %r11d
 ; CHECK-X32-NEXT:    .cfi_def_cfa_register %r11
 ; CHECK-X32-NEXT:    .cfi_adjust_cfa_offset 69632
 ; CHECK-X32-NEXT:  .LBB1_1: # =>This Inner Loop Header: Depth=1

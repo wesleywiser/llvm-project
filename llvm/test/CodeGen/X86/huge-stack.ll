@@ -76,10 +76,10 @@ define ptr @scavenge_spill() unnamed_addr {
 define void @foo_with_probe_stack() unnamed_addr #0 {
 ; CHECK-LABEL: foo_with_probe_stack:
 ; CHECK:       # %bb.0:
-; CHECK-NEXT:    movq %rsp, %r11
-; CHECK-NEXT:    subq $4294963200, %r11 # imm = 0xFFFFF000
+; CHECK-NEXT:    movabsq $-8589930496, %r11 # imm = 0xFFFFFFFE00001000
+; CHECK-NEXT:    leaq (%rsp,%r11), %r11
 ; CHECK-NEXT:    .cfi_def_cfa_register %r11
-; CHECK-NEXT:    .cfi_adjust_cfa_offset 4294963200
+; CHECK-NEXT:    .cfi_adjust_cfa_offset 8589930496
 ; CHECK-NEXT:  .LBB2_1: # =>This Inner Loop Header: Depth=1
 ; CHECK-NEXT:    subq $4096, %rsp # imm = 0x1000
 ; CHECK-NEXT:    movq $0, (%rsp)

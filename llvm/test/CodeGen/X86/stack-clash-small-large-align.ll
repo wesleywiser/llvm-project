@@ -51,8 +51,8 @@ define i32 @foo_protect() local_unnamed_addr #0 {
 ; CHECK-NEXT:    movq %r11, %rsp
 ; CHECK-NEXT:    movq $0, (%rsp)
 ; CHECK-NEXT:  .LBB1_4:
-; CHECK-NEXT:    movq %rsp, %r11
-; CHECK-NEXT:    subq $65536, %r11 # imm = 0x10000
+; CHECK-NEXT:    movq $-65536, %r11 # imm = 0xFFFF0000
+; CHECK-NEXT:    addq %rsp, %r11
 ; CHECK-NEXT:  .LBB1_5: # =>This Inner Loop Header: Depth=1
 ; CHECK-NEXT:    subq $4096, %rsp # imm = 0x1000
 ; CHECK-NEXT:    movq $0, (%rsp)

@@ -799,18 +799,20 @@ void X86FrameLowering::emitStackProbeInlineGenericLoop(
                               : Is64Bit         ? X86::R11D
                                                 : X86::EAX;
 
-  BuildMI(MBB, MBBI, DL, TII.get(TargetOpcode::COPY), FinalStackProbed)
-      .addReg(StackPtr)
-      .setMIFlag(MachineInstr::FrameSetup);
-
   // save loop bound
   {
-    const unsigned BoundOffset = alignDown(Offset, StackProbeSize);
-    const unsigned SUBOpc = getSUBriOpcode(Uses64BitFramePtr);
-    BuildMI(MBB, MBBI, DL, TII.get(SUBOpc), FinalStackProbed)
-        .addReg(FinalStackProbed)
-        .addImm(BoundOffset)
-        .setMIFlag(MachineInstr::FrameSetup);
+    const uint64_t BoundOffset = alignDown(Offset, StackProbeSize);
+
+    const unsigned MOVoff = getMOVriOpcode(Uses64BitFramePtr, -(int64_t)BoundOffset);
+
+    BuildMI(MBB, MBBI, DL, TII.get(MOVoff), FinalStackProbed)
+      .addImm(-(int64_t)BoundOffset)
+      .setMIFlag(MachineInstr::FrameSetup);
+
+    const unsigned LEAoff = getLEArOpcode(Uses64BitFramePtr);
+
+    addRegReg(BuildMI(MBB, MBBI, DL, TII.get(LEAoff), FinalStackProbed),
+      StackPtr, false, FinalStackProbed, true);
 
     // while in the loop, use loop-invariant reg for CFI,
     // instead of the stack pointer, which changes during the loop
