@@ -2,7 +2,7 @@
 ; RUN: llc -O0 -mtriple=x86_64 -verify-machineinstrs < %s | FileCheck %s --check-prefix=CHECK
 %large = type [4294967295 x i8]
 
-define void @foo() unnamed_addr #0 {
+define void @foo() unnamed_addr {
 ; CHECK-LABEL: foo:
 ; CHECK:       # %bb.0:
 ; CHECK-NEXT:    movabsq $8589934472, %rax # imm = 0x1FFFFFF88
@@ -26,7 +26,7 @@ define void @foo() unnamed_addr #0 {
 
 declare ptr @baz(ptr, ptr, ptr, ptr)
 
-define ptr @scavenge_spill() unnamed_addr #0 {
+define ptr @scavenge_spill() unnamed_addr {
 ; CHECK-LABEL: scavenge_spill:
 ; CHECK:       # %bb.0:
 ; CHECK-NEXT:    movabsq $25769803816, %rax # imm = 0x600000028
@@ -72,3 +72,37 @@ define ptr @scavenge_spill() unnamed_addr #0 {
   %ret2 = call ptr @baz(ptr %ptrLarge6, ptr %ptrLarge2, ptr %ptrLarge3, ptr %ptrLarge4)
   ret ptr %ret1
 }
+
+define void @foo_with_probe_stack() unnamed_addr #0 {
+; CHECK-LABEL: foo_with_probe_stack:
+; CHECK:       # %bb.0:
+; CHECK-NEXT:    movq %rsp, %r11
+; CHECK-NEXT:    subq $4294963200, %r11 # imm = 0xFFFFF000
+; CHECK-NEXT:    .cfi_def_cfa_register %r11
+; CHECK-NEXT:    .cfi_adjust_cfa_offset 4294963200
+; CHECK-NEXT:  .LBB2_1: # =>This Inner Loop Header: Depth=1
+; CHECK-NEXT:    subq $4096, %rsp # imm = 0x1000
+; CHECK-NEXT:    movq $0, (%rsp)
+; CHECK-NEXT:    cmpq %r11, %rsp
+; CHECK-NEXT:    jne .LBB2_1
+; CHECK-NEXT:  # %bb.2:
+; CHECK-NEXT:    subq $3976, %rsp # imm = 0xF88
+; CHECK-NEXT:    .cfi_def_cfa_register %rsp
+; CHECK-NEXT:    .cfi_def_cfa_offset 8589934480
+; CHECK-NEXT:    movabsq $4294967177, %rax # imm = 0xFFFFFF89
+; CHECK-NEXT:    movb $42, (%rsp,%rax)
+; CHECK-NEXT:    movb $43, -118(%rsp)
+; CHECK-NEXT:    movabsq $8589934472, %rax # imm = 0x1FFFFFF88
+; CHECK-NEXT:    addq %rax, %rsp
+; CHECK-NEXT:    .cfi_def_cfa_offset 8
+; CHECK-NEXT:    retq
+  %1 = alloca %large, align 1
+  %2 = alloca %large, align 1
+  %3 = getelementptr inbounds %large, ptr %1, i64 0, i64 0
+  store i8 42, ptr %3, align 1
+  %4 = getelementptr inbounds %large, ptr %2, i64 0, i64 0
+  store i8 43, ptr %4, align 1
+  ret void
+}
+
+attributes #0 = { "probe-stack"="inline-asm" }
