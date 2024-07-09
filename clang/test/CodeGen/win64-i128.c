@@ -8,12 +8,12 @@ typedef int int128_t __attribute__((mode(TI)));
 int128_t foo(void) { return 0; }
 
 // GNU64: define dso_local <2 x i64> @foo()
-// MSC64: define dso_local <2 x i64> @foo()
+// MSC64: define dso_local void @foo(ptr dead_on_unwind noalias writable sret(i128) align 16 %agg.result)
 
 int128_t bar(int128_t a, int128_t b) { return a * b; }
 
 // GNU64: define dso_local <2 x i64> @bar(ptr noundef %0, ptr noundef %1)
-// MSC64: define dso_local <2 x i64> @bar(ptr noundef %0, ptr noundef %1)
+// MSC64: define dso_local void @bar(ptr dead_on_unwind noalias writable sret(i128) align 16 %agg.result, ptr noundef %0, ptr noundef %1)
 
 void vararg(int a, ...) {
   // GNU64-LABEL: define{{.*}} void @vararg

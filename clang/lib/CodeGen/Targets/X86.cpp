@@ -3331,13 +3331,16 @@ ABIArgInfo WinX86_64ABIInfo::classify(QualType Ty, unsigned &FreeSSERegs,
       // If it's a parameter type, the normal ABI rule is that arguments larger
       // than 8 bytes are passed indirectly. GCC follows it. We follow it too,
       // even though it isn't particularly efficient.
-      if (!IsReturnType)
-        return ABIArgInfo::getIndirect(Align, /*ByVal=*/false);
-
-      // Mingw64 GCC returns i128 in XMM0. Coerce to v2i64 to handle that.
-      // Clang matches them for compatibility.
-      return ABIArgInfo::getDirect(llvm::FixedVectorType::get(
-          llvm::Type::getInt64Ty(getVMContext()), 2));
+      if (IsMingw64 && IsReturnType) {
+        // Mingw64 GCC returns i128 in XMM0. Coerce to v2i64 to handle that.
+        // Clang matches them for compatibility.
+        return ABIArgInfo::getDirect(llvm::FixedVectorType::get(
+            llvm::Type::getInt64Ty(getVMContext()), 2));
+      } else {
+          // Otherwise, for arguments in Mingw64 GCC or for MS x64 ABI,
+          // pass by reference.
+          return ABIArgInfo::getIndirect(Align, /*ByVal=*/false);
+      }
 
     default:
       break;
